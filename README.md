@@ -1,2 +1,4 @@
 # APCOMPSCI_2Dlabs
-This is from AP computer science 2-dimensional array labs 
+This repo is for the AP computerscience labs related to 2-Dimensional arrays.
+
+This is purely for portfolio purposes and not copyable code!
