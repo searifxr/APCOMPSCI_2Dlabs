@@ -91,187 +91,64 @@ public void drawMap(Graphics g)
 }
 
 /**
-* Find a path from West-to-East starting at given row.
-* Choose a forward step out of 3 possible forward locations, using greedy method described in assignment.
-* @return the total change in elevation traveled from West-to-East
-*/
-public int drawPath(Graphics g, int Startrow)
-{
-    int total_elevation_change = 0;
-    for(int i = 0; i < grid[0].length-1; i++) //Goign thru caloumn
-    {
-        int current_elevation = grid[Startrow][i];
+ * Find a path from West-to-East starting at the given row.
+ * Choose a forward step out of 5 possible forward locations, using improved greedy logic.
+ * @return the total change in elevation traveled from West-to-East
+ */
+public int drawPath(Graphics g, int startRow) {
+    int totalElevationChange = 0;
 
-        int front = grid[Startrow][i+1];
-        int up = Integer.MAX_VALUE; //placeholder
-        int down = Integer.MAX_VALUE;
+    for (int col = 0; col < grid[0].length - 1; col++) { // Move through columns
+        int currentElevation = grid[startRow][col];
 
-        if(Startrow > 0)
-        {
-            up = grid[Startrow-1][i+1];
+        // Variables to store potential next steps
+        int[] elevations = new int[5];
+        int[] changes = new int[5];
+        Arrays.fill(elevations, Integer.MAX_VALUE);
+
+        // Look at up to 5 possible moves
+        if (startRow > 1) elevations[0] = grid[startRow - 2][col + 1]; // 2 steps up
+        if (startRow > 0) elevations[1] = grid[startRow - 1][col + 1]; // 1 step up
+        elevations[2] = grid[startRow][col + 1]; // Straight ahead
+        if (startRow < grid.length - 1) elevations[3] = grid[startRow + 1][col + 1]; // 1 step down
+        if (startRow < grid.length - 2) elevations[4] = grid[startRow + 2][col + 1]; // 2 steps down
+
+        // Compute changes in elevation
+        for (int i = 0; i < 5; i++) {
+            if (elevations[i] != Integer.MAX_VALUE) {
+                changes[i] = Math.abs(currentElevation - elevations[i]);
+            }
         }
 
-        if(Startrow < grid.length-1)
-        {
-            down = grid[Startrow+1][i+1];
+        // Select the move with the lowest elevation change
+        int minChange = Integer.MAX_VALUE;
+        int bestMove = 2; // Default to moving straight ahead
+        for (int i = 0; i < 5; i++) {
+            if (changes[i] < minChange) {
+                minChange = changes[i];
+                bestMove = i;
+            }
         }
-        //calculating changes in elevation
-        int changeFront = Math.abs(current_elevation-front);
-        int changeDown = Math.abs(current_elevation-down);
-        int changeUp = Math.abs(current_elevation-up);
 
-        //if you want to move up
-        if(Startrow > 0 && changeUp < changeFront && changeUp < changeDown)
-        {
-            Startrow--;
-            total_elevation_change += changeUp;
+        // Adjust the starting row based on the best move
+        switch (bestMove) {
+            case 0: startRow -= 2; break;
+            case 1: startRow -= 1; break;
+            case 2: break; // No change
+            case 3: startRow += 1; break;
+            case 4: startRow += 2; break;
         }
-        //if you want to move down
-        else if(Startrow < grid.length-1 && changeDown < changeUp && changeDown < changeFront)
-        {
-            Startrow++;
-            total_elevation_change += changeDown;
-        }
-        //if two are tied
-        else if(Startrow > 0 && changeDown == changeFront || changeFront == changeUp)
-        {
-            //three way tie
-            if(changeDown == changeFront && changeDown == changeUp)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(3)+1;
-                switch (selection) {
-                    case 1:
-                        Startrow++;
-                        total_elevation_change += changeDown;
-                        break;
-                    case 2:
-                        Startrow--;
-                        total_elevation_change += changeUp;
-                        break;
-                    default:
-                        total_elevation_change += changeFront;
-                        break;
-                }
-            }
-            //two way ties
-            //change down
-            if(changeDown == changeFront)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        Startrow++;
-                        total_elevation_change += changeDown;
-                        break;
-                    case 2:
-                        total_elevation_change += changeFront;
-                        break;
-                }
-            }
-            else if(changeDown == changeUp)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        Startrow++;
-                        total_elevation_change += changeDown;
-                        break;
-                    case 2:
-                        Startrow--;
-                        total_elevation_change += changeUp;
-                        break;
-                }
-            }
-            //change front
-            else if(changeFront == changeUp)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        total_elevation_change += changeFront;
-                        break;
-                    case 2:
-                        Startrow--;
-                        total_elevation_change += changeUp;
-                        break;
-                }
-            }
-            else if(changeFront == changeDown)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        total_elevation_change += changeFront;
-                        break;
-                    case 2:
-                        Startrow++;
-                        total_elevation_change += changeDown;
-                        break;
-                }
-            }
-            //change up
-            else if(changeUp == changeDown)
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        Startrow--;
-                        total_elevation_change += changeUp;
-                        break;
-                    case 2:
-                        Startrow++;
-                        total_elevation_change += changeDown;
-                        break;
-                }
-            }
-            else
-            {
-                Random rng = new Random();
-                int selection = rng.nextInt(2)+1;
-                switch (selection) {
-                    case 1:
-                        Startrow--;
-                        total_elevation_change += changeUp;
-                        break;
-                    case 2:
-                        total_elevation_change += changeFront;
-                        break;
-                }
-            }
-        }
-        else
-        {
-            total_elevation_change += changeFront; 
-        }
-    g.fillRect(i, Startrow, 1, 1);
-    }
-    
-return total_elevation_change;
-}
 
-/** @return the index of the starting row for the lowest-elevation-change path in the entire grid. */
-public int getIndexOfLowestPath(Graphics g)
-{
-    int minimum_elevation_path = Integer.MAX_VALUE;
-    int starting_row = 0;
-    for(int row = 0; row < grid.length; row++)
-    {
-        int elevationChange = drawPath(g, row);
-        if(minimum_elevation_path > elevationChange)
-        {
-            minimum_elevation_path = elevationChange;
-            starting_row = row;
-        }
+        // Add the elevation change to the total
+        totalElevationChange += minChange;
+
+        // Draw the path
+        g.fillRect(col + 1, startRow, 1, 1);
     }
 
-    return starting_row;
+    return totalElevationChange;
 }
+
 
 /** return the number of rows in grid */
 public int getRows()
