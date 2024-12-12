@@ -71,24 +71,41 @@ public int findMax()
 * Draws the grid using the given Graphics object.
 * Colors should be grayscale values 0-255, scaled based on mi/max valuens in grid
 */
-public void drawMap(Graphics g)
-{
+public void drawMap(Graphics g) {
     int minimum = findMin();
     int maximum = findMax();
-    int range = maximum-minimum;
+    int range = maximum - minimum;
 
-    for(int row = 0; row < grid.length; row++)
-    {
-      for(int column = 0; column < grid[1].length; column++)
-      {
-        int value = grid[row][column];
-        int grayscale = (int)((value - minimum)*255.0/range);
+    for (int row = 0; row < grid.length; row++) {
+        for (int column = 0; column < grid[0].length; column++) {
+            int value = grid[row][column];
+            
+            // Normalize elevation to a 0-1 range
+            double normalized = (double) (value - minimum) / range;
 
-        g.setColor(new Color(grayscale, grayscale, grayscale));
-        g.fillRect(column, row, 1, 1);
-      }
+            // Interpolate color: green (low) to tan (mid) to white (high)
+            int red, green, blue;
+            if (normalized < 0.5) {
+                // Low to mid (green to tan)
+                double ratio = normalized / 0.5;
+                red = (int) (34 * (1 - ratio) + 210 * ratio);   // Green to Tan
+                green = (int) (139 * (1 - ratio) + 180 * ratio);
+                blue = (int) (34 * (1 - ratio) + 140 * ratio);
+            } else {
+                // Mid to high (tan to white)
+                double ratio = (normalized - 0.5) / 0.5;
+                red = (int) (210 * (1 - ratio) + 255 * ratio);  // Tan to White
+                green = (int) (180 * (1 - ratio) + 255 * ratio);
+                blue = (int) (140 * (1 - ratio) + 255 * ratio);
+            }
+
+            // Set color and draw pixel
+            g.setColor(new Color(red, green, blue));
+            g.fillRect(column, row, 1, 1);
+        }
     }
 }
+
 
 /**
  * Find a path from West-to-East starting at the given row.
