@@ -249,7 +249,6 @@ public int drawPath(Graphics g, int Startrow)
         {
             total_elevation_change += changeFront; 
         }
-    g.setColor(new Color(0,255,0));
     g.fillRect(i, Startrow, 1, 1);
     }
     
